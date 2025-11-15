@@ -11,8 +11,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiar arquivos de dependências
+# Copiar arquivos de dependências E patches
 COPY package.json pnpm-lock.yaml ./
+COPY patches ./patches
 
 # Instalar pnpm e dependências
 RUN npm install -g pnpm@latest && \
@@ -34,8 +35,9 @@ WORKDIR /app
 # Instalar pnpm
 RUN npm install -g pnpm@latest
 
-# Copiar arquivos de dependências
+# Copiar arquivos de dependências E patches
 COPY package.json pnpm-lock.yaml ./
+COPY patches ./patches
 
 # Instalar apenas dependências de produção
 RUN pnpm install --prod --frozen-lockfile
