@@ -1,5 +1,5 @@
 # ============================================================================
-# Whaileys Frontend - Dockerfile COM BCRYPT COMPILADO
+# Whaileys Frontend - Dockerfile FINAL CORRIGIDO
 # ============================================================================
 
 FROM node:20-alpine
@@ -24,12 +24,13 @@ RUN pnpm install --frozen-lockfile && \
 # Copiar código fonte completo
 COPY . .
 
-# Build do frontend (Vite)
-RUN pnpm vite build
+# Build do frontend (Vite) E do backend (TypeScript)
+RUN pnpm vite build && \
+    pnpm tsc
 
-# Criar link simbólico para o servidor encontrar os arquivos
-RUN mkdir -p server/_core && \
-    ln -s /app/dist/public /app/server/_core/public
+# COPIAR arquivos estáticos para onde o servidor compilado espera encontrá-los
+RUN mkdir -p /app/dist/server/_core && \
+    cp -r /app/dist/public /app/dist/server/_core/public
 
 # Script de inicialização (copiar e dar permissão ANTES de trocar usuário)
 COPY docker-entrypoint.sh /app/
