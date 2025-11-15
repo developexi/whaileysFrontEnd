@@ -19,6 +19,9 @@ export async function logActivity(data: Omit<InsertActivityLog, "createdAt">) {
   }
 }
 
+// Alias para compatibilidade com routers.ts
+export const createActivityLog = logActivity;
+
 /**
  * Buscar logs de atividades com filtros opcionais
  */
