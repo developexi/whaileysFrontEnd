@@ -1,34 +1,9 @@
 # ============================================================================
-# Whaileys Frontend - Dockerfile
+# Whaileys Frontend - Dockerfile (Production)
 # ============================================================================
-# Multi-stage build para otimizar tamanho da imagem final
+# Usa tsx para rodar TypeScript diretamente em produção
 # ============================================================================
 
-# ============================================================================
-# Stage 1: Build
-# ============================================================================
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# Copiar arquivos de dependências E patches
-COPY package.json pnpm-lock.yaml ./
-COPY patches ./patches
-
-# Instalar pnpm e dependências
-RUN npm install -g pnpm@latest && \
-    pnpm install --frozen-lockfile
-
-# Copiar código fonte
-COPY . .
-
-# Build da aplicação (client + server)
-# Vite gera em dist/public/ e esbuild gera em dist/
-RUN pnpm run build
-
-# ============================================================================
-# Stage 2: Production
-# ============================================================================
 FROM node:20-alpine
 
 WORKDIR /app
@@ -40,17 +15,14 @@ RUN npm install -g pnpm@latest
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches
 
-# Instalar apenas dependências de produção
-RUN pnpm install --prod --frozen-lockfile
+# Instalar TODAS as dependências (incluindo devDependencies para tsx)
+RUN pnpm install --frozen-lockfile
 
-# Copiar build da aplicação do stage anterior
-# O Vite gera tudo em dist/ (incluindo dist/public/)
-COPY --from=builder /app/dist ./dist
+# Copiar código fonte completo
+COPY . .
 
-# Copiar arquivos necessários para runtime
-COPY drizzle ./drizzle
-COPY server ./server
-COPY shared ./shared
+# Build apenas do frontend (client)
+RUN pnpm run build:client || pnpm vite build
 
 # Criar usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && \
@@ -69,7 +41,7 @@ ENV NODE_ENV=production \
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/trpc/sessions.health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD node -e "require('http').get('http://localhost:3000/api/trpc/auth.me', (r) => {process.exit(r.statusCode === 200 || r.statusCode === 401 ? 0 : 1)})"
 
-# Comando de inicialização
-CMD ["node", "dist/index.js"]
+# Comando de inicialização usando tsx (roda TypeScript diretamente)
+CMD ["npx", "tsx", "server/_core/index.ts"]
