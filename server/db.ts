@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, User } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -91,6 +91,55 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Buscar usuário por email (para autenticação local)
+ */
+export async function getUserByEmail(email: string): Promise<User | undefined> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Criar novo usuário (para registro local)
+ */
+export async function createUser(data: {
+  email: string;
+  passwordHash: string;
+  name?: string;
+  role?: "user" | "admin";
+  loginMethod?: string;
+}): Promise<User | undefined> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create user: database not available");
+    return undefined;
+  }
+
+  try {
+    const newUser: InsertUser = {
+      openId: `local_${Date.now()}_${Math.random().toString(36).substring(7)}`, // Gerar openId único para usuários locais
+      email: data.email,
+      passwordHash: data.passwordHash,
+      name: data.name || data.email.split("@")[0],
+      role: data.role || "user",
+      loginMethod: data.loginMethod || "local",
+      lastSignedIn: new Date(),
+    };
+
+    const result = await db.insert(users).values(newUser).returning();
+    return result.length > 0 ? result[0] : undefined;
+  } catch (error) {
+    console.error("[Database] Failed to create user:", error);
+    throw error;
+  }
 }
 
 // TODO: add feature queries here as your schema grows.
