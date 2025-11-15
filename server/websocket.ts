@@ -37,6 +37,15 @@ export function initWebSocket(server: HTTPServer) {
 }
 
 /**
+ * Broadcast de atualização de sessão (genérico)
+ */
+export function broadcastSessionUpdate(data: any) {
+  if (!io) return;
+  io.to("sessions").emit("session:update", { ...data, timestamp: new Date() });
+  console.log(`[WebSocket] Broadcast session:update emitido`);
+}
+
+/**
  * Emitir evento de sessão criada
  */
 export function emitSessionCreated(sessionId: string) {

@@ -1,5 +1,5 @@
 # ============================================================================
-# Whaileys Frontend - Dockerfile Corrigido COM SUPORTE BCRYPT
+# Whaileys Frontend - Dockerfile COM BCRYPT COMPILADO
 # ============================================================================
 
 FROM node:20-alpine
@@ -16,8 +16,10 @@ RUN npm install -g pnpm@latest
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches
 
-# Instalar TODAS as dependências
-RUN pnpm install --frozen-lockfile
+# Instalar TODAS as dependências E COMPILAR bcrypt
+RUN pnpm install --frozen-lockfile && \
+    cd node_modules/.pnpm/bcrypt@5.1.1/node_modules/bcrypt && \
+    npm run install
 
 # Copiar código fonte completo
 COPY . .
@@ -50,7 +52,7 @@ ENV NODE_ENV=production \
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD node -e "require('http' ).get('http://localhost:3000/', (r ) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Comando de inicialização
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
