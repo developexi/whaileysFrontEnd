@@ -1,10 +1,13 @@
 # ============================================================================
-# Whaileys Frontend - Dockerfile Corrigido
+# Whaileys Frontend - Dockerfile Corrigido COM SUPORTE BCRYPT
 # ============================================================================
 
 FROM node:20-alpine
 
 WORKDIR /app
+
+# Instalar dependências de build para bcrypt (python3, make, g++)
+RUN apk add --no-cache python3 make g++
 
 # Instalar pnpm
 RUN npm install -g pnpm@latest
@@ -47,7 +50,7 @@ ENV NODE_ENV=production \
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD node -e "require('http' ).get('http://localhost:3000/', (r ) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Comando de inicialização
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
