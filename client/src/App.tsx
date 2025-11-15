@@ -8,9 +8,31 @@ import Home from "./pages/Home";
 import Sessions from "./pages/Sessions";
 import Users from "./pages/Users";
 import ActivityLogs from "./pages/ActivityLogs";
+import Login from "./pages/Login";
+import { useAuth } from "./_core/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
+  const { user, loading } = useAuth();
+
+  // Mostrar loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não estiver autenticado, mostrar página de login
+  if (!user) {
+    return <Login />;
+  }
+
+  // Se estiver autenticado, mostrar rotas protegidas
   return (
     <Switch>
       <Route path={"/"} component={Home} />

@@ -1,5 +1,5 @@
 # ============================================================================
-# Whaileys Frontend - Dockerfile (v2)
+# Whaileys Frontend - Dockerfile Final
 # ============================================================================
 
 FROM node:20-alpine
@@ -45,5 +45,9 @@ ENV NODE_ENV=production \
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
+# Script de inicialização
+COPY docker-entrypoint.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh
+
 # Comando de inicialização
-CMD ["npx", "tsx", "server/_core/index.ts"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
