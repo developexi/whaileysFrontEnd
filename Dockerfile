@@ -1,7 +1,5 @@
 # ============================================================================
-# Whaileys Frontend - Dockerfile (Production)
-# ============================================================================
-# Usa tsx para rodar TypeScript diretamente em produção
+# Whaileys Frontend - Dockerfile (v2)
 # ============================================================================
 
 FROM node:20-alpine
@@ -15,14 +13,18 @@ RUN npm install -g pnpm@latest
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches
 
-# Instalar TODAS as dependências (incluindo devDependencies para tsx)
+# Instalar TODAS as dependências
 RUN pnpm install --frozen-lockfile
 
 # Copiar código fonte completo
 COPY . .
 
-# Build apenas do frontend (client)
-RUN pnpm run build:client || pnpm vite build
+# Build do frontend (Vite)
+RUN pnpm vite build
+
+# Criar link simbólico para o servidor encontrar os arquivos
+RUN mkdir -p server/_core && \
+    ln -s /app/dist/public /app/server/_core/public
 
 # Criar usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && \
@@ -41,7 +43,7 @@ ENV NODE_ENV=production \
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/trpc/auth.me', (r) => {process.exit(r.statusCode === 200 || r.statusCode === 401 ? 0 : 1)})"
+  CMD node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Comando de inicialização usando tsx (roda TypeScript diretamente)
+# Comando de inicialização
 CMD ["npx", "tsx", "server/_core/index.ts"]
