@@ -81,6 +81,19 @@ export async function getSession(sessionId: string): Promise<WhatsAppSession | n
 }
 
 /**
+ * Obtém o QR Code de uma sessão específica
+ */
+export async function getSessionQRCode(sessionId: string): Promise<string | null> {
+  try {
+    const response = await fetchWhaileys<ApiResponse<{ qrCode: string }>>(`/api/sessions/${sessionId}/qrcode`);
+    return response.data?.qrCode || null;
+  } catch (error) {
+    console.error(`Erro ao buscar QR Code da sessão ${sessionId}:`, error);
+    return null;
+  }
+}
+
+/**
  * Cria uma nova sessão WhatsApp
  */
 export async function createSession(sessionId: string): Promise<WhatsAppSession> {
