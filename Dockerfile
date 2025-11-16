@@ -1,5 +1,5 @@
 # ============================================================================
-# Whaileys Frontend - Dockerfile FINAL COM DEBUG
+# Whaileys Frontend - Dockerfile FINAL COM LIMPEZA DE CACHE
 # ============================================================================
 
 FROM node:20-alpine
@@ -24,14 +24,19 @@ RUN pnpm install --frozen-lockfile && \
 # Copiar código fonte completo
 COPY . .
 
-# Build do frontend (Vite)
+# CRÍTICO: Limpar cache do Vite e builds anteriores
+RUN rm -rf node_modules/.vite dist
+
+# Build do frontend (Vite) - agora completamente limpo
 RUN pnpm vite build
 
 # DEBUG: Mostrar o que foi gerado
 RUN echo "=== Conteúdo de /app/dist/ ===" && \
     ls -la /app/dist/ && \
     echo "=== Conteúdo de /app/dist/public/ ===" && \
-    ls -la /app/dist/public/ || echo "dist/public não existe"
+    ls -la /app/dist/public/ && \
+    echo "=== Conteúdo de /app/dist/public/assets/ ===" && \
+    ls -la /app/dist/public/assets/
 
 # COPIAR arquivos estáticos para onde o servidor espera
 RUN mkdir -p /app/server/_core/public && \
@@ -41,7 +46,9 @@ RUN mkdir -p /app/server/_core/public && \
 RUN echo "=== Conteúdo de /app/server/_core/public/ ===" && \
     ls -la /app/server/_core/public/ && \
     echo "=== index.html existe? ===" && \
-    ls -la /app/server/_core/public/index.html
+    ls -la /app/server/_core/public/index.html && \
+    echo "=== Conteúdo de /app/server/_core/public/assets/ ===" && \
+    ls -la /app/server/_core/public/assets/
 
 # Script de inicialização (copiar e dar permissão ANTES de trocar usuário)
 COPY docker-entrypoint.sh /app/

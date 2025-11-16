@@ -76,3 +76,4 @@ export function serveStatic(app: Express) {
     res.sendFile(indexPath);
   });
 }
+
