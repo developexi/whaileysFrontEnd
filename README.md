@@ -2,6 +2,7 @@
 
 Interface web moderna para gerenciamento de sessões WhatsApp da API Whaileys.
 
+
 ![React](https://img.shields.io/badge/React-18-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-blue)
