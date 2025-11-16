@@ -18,6 +18,9 @@ WORKDIR /app
 # Copiar arquivos de dependências
 COPY package.json pnpm-lock.yaml ./
 
+# Copiar patches do pnpm (necessário antes do install)
+COPY patches ./patches
+
 # Instalar pnpm e dependências
 RUN npm install -g pnpm@latest && \
     pnpm install --frozen-lockfile
@@ -40,6 +43,9 @@ RUN npm install -g pnpm@latest
 
 # Copiar arquivos de dependências
 COPY package.json pnpm-lock.yaml ./
+
+# Copiar patches do pnpm (necessário antes do install)
+COPY patches ./patches
 
 # Instalar apenas dependências de produção
 RUN pnpm install --prod --frozen-lockfile
