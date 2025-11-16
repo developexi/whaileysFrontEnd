@@ -25,7 +25,7 @@ RUN pnpm install --frozen-lockfile && \
 COPY . .
 
 # CRÍTICO: Limpar cache do Vite e builds anteriores
-RUN rm -rf node_modules/.vite dist
+RUN rm -rf node_modules/.vite dist .vite node_modules/.cache
 
 # Build do frontend (Vite) - agora completamente limpo
 RUN pnpm vite build
@@ -36,7 +36,9 @@ RUN echo "=== Conteúdo de /app/dist/ ===" && \
     echo "=== Conteúdo de /app/dist/public/ ===" && \
     ls -la /app/dist/public/ && \
     echo "=== Conteúdo de /app/dist/public/assets/ ===" && \
-    ls -la /app/dist/public/assets/
+    ls -la /app/dist/public/assets/ && \
+    echo "=== Hash dos arquivos JS no index.html ===" && \
+    grep -E "(script src=|link href=)" /app/dist/public/index.html || true
 
 # COPIAR arquivos estáticos para onde o servidor espera
 RUN mkdir -p /app/server/_core/public && \
@@ -48,7 +50,9 @@ RUN echo "=== Conteúdo de /app/server/_core/public/ ===" && \
     echo "=== index.html existe? ===" && \
     ls -la /app/server/_core/public/index.html && \
     echo "=== Conteúdo de /app/server/_core/public/assets/ ===" && \
-    ls -la /app/server/_core/public/assets/
+    ls -la /app/server/_core/public/assets/ && \
+    echo "=== Hash dos arquivos JS no index.html FINAL ===" && \
+    grep -E "(script src=|link href=)" /app/server/_core/public/index.html || true
 
 # Script de inicialização (copiar e dar permissão ANTES de trocar usuário)
 COPY docker-entrypoint.sh /app/
