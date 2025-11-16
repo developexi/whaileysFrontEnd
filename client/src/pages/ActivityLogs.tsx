@@ -18,8 +18,8 @@ export default function ActivityLogs() {
   const { data: logs, isLoading, refetch } = trpc.activityLogs.list.useQuery({
     action: actionFilter,
     entityType: entityTypeFilter,
-    startDate: startDate ? new Date(startDate) : undefined,
-    endDate: endDate ? new Date(endDate) : undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
     limit: 100,
   });
 

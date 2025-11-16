@@ -127,8 +127,9 @@ export const appRouter = router({
           await createActivityLog({
             userId: ctx.user.id,
             action: "create_session",
-            description: `Criou sessão WhatsApp: ${input.sessionId}`,
-            metadata: { sessionId: input.sessionId },
+            entityType: "session",
+            entityId: input.sessionId,
+            details: JSON.stringify({ sessionId: input.sessionId }),
           });
 
           // Notificar via WebSocket
@@ -163,8 +164,9 @@ export const appRouter = router({
           await createActivityLog({
             userId: ctx.user.id,
             action: "delete_session",
-            description: `Deletou sessão WhatsApp: ${input.sessionId}`,
-            metadata: { sessionId: input.sessionId },
+            entityType: "session",
+            entityId: input.sessionId,
+            details: JSON.stringify({ sessionId: input.sessionId }),
           });
 
           // Notificar via WebSocket
@@ -207,7 +209,7 @@ export const appRouter = router({
      * Health check
      */
     health: publicProcedure.query(() => {
-      return { status: "ok", timestamp: new Date().toISOString() };
+      return { status: "ok", healthy: true, timestamp: new Date().toISOString() };
     }),
   }),
 
@@ -223,6 +225,7 @@ export const appRouter = router({
         z.object({
           userId: z.number().optional(),
           action: z.string().optional(),
+          entityType: z.string().optional(),
           startDate: z.string().optional(),
           endDate: z.string().optional(),
           limit: z.number().default(50),
@@ -230,7 +233,11 @@ export const appRouter = router({
       )
       .query(async ({ input }) => {
         try {
-          const logs = await getActivityLogs(input);
+          const logs = await getActivityLogs({
+            ...input,
+            startDate: input.startDate ? new Date(input.startDate) : undefined,
+            endDate: input.endDate ? new Date(input.endDate) : undefined,
+          });
           return logs;
         } catch (error: any) {
           throw new TRPCError({

@@ -83,7 +83,7 @@ export default function Sessions() {
     },
   });
 
-  const { data: qrCode, refetch: refetchQr } = trpc.sessions.getQrCode.useQuery(
+  const { data: qrCode, refetch: refetchQr } = trpc.sessions.getQRCode.useQuery(
     { sessionId: qrCodeSessionId || "" },
     { enabled: !!qrCodeSessionId && isQrDialogOpen }
   );
@@ -314,10 +314,10 @@ export default function Sessions() {
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col items-center justify-center py-6">
-              {qrCode ? (
+              {qrCode?.qrCode ? (
                 <div className="bg-white p-4 rounded-lg shadow-md">
                   <img
-                    src={qrCode}
+                    src={qrCode.qrCode}
                     alt="QR Code WhatsApp"
                     className="w-64 h-64"
                   />
