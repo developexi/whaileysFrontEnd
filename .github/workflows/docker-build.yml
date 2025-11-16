@@ -28,10 +28,12 @@ jobs:
         with:
           context: .
           push: true
+          no-cache: true
           tags: |
             developexi/whaileys-front:latest
             developexi/whaileys-front:${{ github.sha }}
-          no-cache: true
+          build-args: |
+            BUILD_ID=-${{ github.sha }}
           platforms: linux/amd64
 
       - name: Image digest

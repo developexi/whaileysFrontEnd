@@ -26,10 +26,10 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        // Adicionar timestamp ao hash para forçar regeneração
-        entryFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
-        chunkFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
-        assetFileNames: `assets/[name]-[hash]-${Date.now()}.[ext]`
+        // Adicionar BUILD_ID ao hash para forçar regeneração
+        entryFileNames: `assets/[name]-[hash]${process.env.BUILD_ID || ''}.js`,
+        chunkFileNames: `assets/[name]-[hash]${process.env.BUILD_ID || ''}.js`,
+        assetFileNames: `assets/[name]-[hash]${process.env.BUILD_ID || ''}.[ext]`
       }
     }
   },
