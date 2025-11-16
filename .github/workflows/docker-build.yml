@@ -31,8 +31,7 @@ jobs:
           tags: |
             developexi/whaileys-front:latest
             developexi/whaileys-front:${{ github.sha }}
-          cache-from: type=registry,ref=developexi/whaileys-front:latest
-          cache-to: type=inline
+          no-cache: true
           platforms: linux/amd64
 
       - name: Image digest
