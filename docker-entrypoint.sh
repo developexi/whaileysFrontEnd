@@ -5,7 +5,7 @@ echo "🚀 Iniciando Whaileys Frontend..."
 
 # Executar seed do usuário padrão (ignora erro se já existir)
 echo "🌱 Verificando usuário padrão..."
-npx tsx seed-default-user.ts || true
+node dist/seed-default-user.js || true
 
 echo "✅ Iniciando servidor..."
-exec npx tsx server/_core/index.ts
+exec node dist/server/_core/index.js
