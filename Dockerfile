@@ -1,5 +1,5 @@
 # ============================================================================
-# Whaileys Frontend - Dockerfile FINAL CORRIGIDO
+# Whaileys Frontend - Dockerfile FINAL COM DEBUG
 # ============================================================================
 
 FROM node:20-alpine
@@ -27,11 +27,21 @@ COPY . .
 # Build do frontend (Vite)
 RUN pnpm vite build
 
-# COPIAR arquivos estáticos para onde o servidor espera encontrá-los
-# O servidor roda com tsx a partir de /app/server/_core/index.ts
-# e procura por arquivos em /app/server/_core/public
+# DEBUG: Mostrar o que foi gerado
+RUN echo "=== Conteúdo de /app/dist/ ===" && \
+    ls -la /app/dist/ && \
+    echo "=== Conteúdo de /app/dist/public/ ===" && \
+    ls -la /app/dist/public/ || echo "dist/public não existe"
+
+# COPIAR arquivos estáticos para onde o servidor espera
 RUN mkdir -p /app/server/_core/public && \
     cp -r /app/dist/public/* /app/server/_core/public/
+
+# DEBUG: Confirmar que copiou
+RUN echo "=== Conteúdo de /app/server/_core/public/ ===" && \
+    ls -la /app/server/_core/public/ && \
+    echo "=== index.html existe? ===" && \
+    ls -la /app/server/_core/public/index.html
 
 # Script de inicialização (copiar e dar permissão ANTES de trocar usuário)
 COPY docker-entrypoint.sh /app/
