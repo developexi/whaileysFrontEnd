@@ -24,13 +24,14 @@ RUN pnpm install --frozen-lockfile && \
 # Copiar código fonte completo
 COPY . .
 
-# Build do frontend (Vite) E do backend (TypeScript)
-RUN pnpm vite build && \
-    pnpm tsc
+# Build do frontend (Vite)
+RUN pnpm vite build
 
-# COPIAR arquivos estáticos para onde o servidor compilado espera encontrá-los
-RUN mkdir -p /app/dist/server/_core && \
-    cp -r /app/dist/public /app/dist/server/_core/public
+# COPIAR arquivos estáticos para onde o servidor espera encontrá-los
+# O servidor roda com tsx a partir de /app/server/_core/index.ts
+# e procura por arquivos em /app/server/_core/public
+RUN mkdir -p /app/server/_core/public && \
+    cp -r /app/dist/public/* /app/server/_core/public/
 
 # Script de inicialização (copiar e dar permissão ANTES de trocar usuário)
 COPY docker-entrypoint.sh /app/
