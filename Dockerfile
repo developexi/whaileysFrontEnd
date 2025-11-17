@@ -51,8 +51,8 @@ COPY patches ./patches
 RUN pnpm install --prod --frozen-lockfile
 
 # Copiar build da aplicação do stage anterior
+# O Vite agora gera tudo em /app/dist/public
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/client/dist ./client/dist
 
 # Copiar arquivos necessários para runtime
 COPY drizzle ./drizzle
@@ -79,4 +79,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api/trpc/sessions.health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Comando de inicialização
-CMD ["node", "dist/server/_core/index.js"]
+CMD ["node", "dist/index.js"]
